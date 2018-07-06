@@ -8,9 +8,10 @@ uint32_t *grid;
 const uint32_t SIZE = 800;
 const uint32_t TOTAL = 640000; 
 const uint32_t ENDL = 799;
+const uint32_t ENDG = 639999;
 const uint32_t TOTAL_BYTES = 2560000;
 
-uint32_t front = 320400, back = 320400;
+uint32_t front, back;
 
 int main() {
 	std::cout << "Module ready" << std::endl;
@@ -22,10 +23,23 @@ extern "C" {
 	void setGrid(uint32_t* input) {
 		grid = input;
 		std::cout << "Setting grid to " << (uint32_t)input << std::endl;
+
+		front = SIZE - 1, back = 0;
 	}
 
 	EMSCRIPTEN_KEEPALIVE
 	void toppleGrid() {
+		for(uint32_t i = 0; i < front; i++) 
+			if(grid[i] > 3) {
+				front = i;
+				break;
+			}
+		for(uint32_t i = ENDG; i > back; i--)
+			if(grid[i] > 3) {
+				back = i;
+				break;
+			}
+		
 		for(uint32_t n = 0; n < 1000; n++) {
 			for(uint32_t i = front; i <= back; i++) {
 				if(grid[i] > 3) {
@@ -56,6 +70,17 @@ extern "C" {
 
 	EMSCRIPTEN_KEEPALIVE
 	void toppleGridFast() {
+		for(uint32_t i = 0; i < front; i++) 
+			if(grid[i] > 3) {
+				front = i;
+				break;
+			}
+		for(uint32_t i = ENDG; i > back; i--)
+			if(grid[i] > 3) {
+				back = i;
+				break;
+			}
+
 		for(uint32_t n = 0; n < 10; n++) {
 			for(uint32_t i = front; i <= back; i++) {
 				if(grid[i] > 3) {
