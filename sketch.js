@@ -1,5 +1,4 @@
 const SIZE = 800;
-const ENDL = SIZE - 1;
 const TOTAL = SIZE * SIZE;
 const TOTAL_BYTES = TOTAL << 2;
 
@@ -9,8 +8,6 @@ let arrBegin;
 let arrEnd;
 let started = false;
 let liveMode = false;
-let front = 320400;
-let back = 320400;
 
 function setup() {
 	createCanvas(SIZE, SIZE).parent("#canvas");	
@@ -19,7 +16,7 @@ function setup() {
 	grid[320400] = 1000000;
 
 	select("#benchmark").mousePressed(() => {
-		if(started) console.log("Cannot benchmark while running, please refresh");
+		if(started) console.log("Cannot benchmark while running, please restart");
 		else Module.ccall("benchmark");
 	});
 
@@ -28,55 +25,29 @@ function setup() {
 		Module.HEAPU32.set(grid, buf >> 2);
 		Module.ccall("setGrid", null, ["number"], [buf]);
 
-		// test
-		Module.ccall("setGrid", null, ["number"], [buf]);
-
 		started = true;
 		arrBegin = buf >> 2;
 		arrEnd = arrBegin + TOTAL;
 	});
 
-	select("#live_mode").mousePressed(() => {
-		liveMode = !liveMode;	
-	});
+	select("#live_mode").mousePressed(() => liveMode = !liveMode);
 
+	select("#clear").mousePressed(() => {
+		for(let i = 0; i < TOTAL; i++) grid[i] = 0;
+		started = false;	
+	});
 }
 
 function topple() {
-	if(liveMode) {
-		for(let n = 0; n < 5; n++) {
-			for(let i = front; i <= back; i++) {
-				if(grid[i] > 3) {
-					grid[i] -= 4;
-					const col = i % SIZE, row = floor(i / SIZE);
-					if(col != 0) {
-						grid[i - 1]++;
-						front = (i - 1) < front ? (i - 1) : front;
-					}
-					if(col != ENDL) {
-						grid[i + 1]++;
-						back = (i + 1) > back ? (i + 1) : back;
-					}
-					if(row != 0) {
-						grid[i - SIZE]++;
-						front = (i - SIZE) < front ? (i - SIZE) : front;
-					}
-					if(row != ENDL) {
-						grid[i + SIZE]++;
-						back = (i + SIZE) > back ? (i + SIZE) : back;
-					}
-				}	
-			}	
-		}
-	}
-	else {
-		Module.ccall("toppleGrid");
-		grid = Module.HEAPU32.subarray(arrBegin, arrEnd);
-	}
+	if(liveMode) Module.ccall("toppleGridFast");
+	else Module.ccall("toppleGrid");
+	grid = Module.HEAPU32.subarray(arrBegin, arrEnd);
 }
 
 function draw() {
 	if(started) topple();	
+
+	if(mouseIsPressed) grid[mouseY * SIZE + mouseX] += 1000000;	
 
 	loadPixels();
 

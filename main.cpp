@@ -4,7 +4,7 @@
 #include <chrono>
 #include <cstring>
 
-uint32_t *grid = nullptr;
+uint32_t *grid;
 const uint32_t SIZE = 800;
 const uint32_t TOTAL = 640000; 
 const uint32_t ENDL = 799;
@@ -20,12 +20,8 @@ extern "C" {
 
 	EMSCRIPTEN_KEEPALIVE
 	void setGrid(uint32_t* input) {
-		if(grid == nullptr) {
-			grid = input;
-			std::cout << "Setting grid to " << (uint32_t)input << std::endl;
-		}
-		else std::cout << "Grid initialized as " << (uint32_t)grid 
-			<< ", passed in " << (uint32_t)input << std::endl;
+		grid = input;
+		std::cout << "Setting grid to " << (uint32_t)input << std::endl;
 	}
 
 	EMSCRIPTEN_KEEPALIVE
@@ -35,21 +31,53 @@ extern "C" {
 				if(grid[i] > 3) {
 					grid[i] -= 4;
 					const uint32_t col = i % SIZE, row = i / SIZE;
+					const uint32_t prev = i - 1, next = i + 1;
+					const uint32_t top = i - SIZE, bottom = i + SIZE;
 					if(col != 0) {
-						grid[i - 1]++;
-						front = (i - 1) < front ? (i - 1) : front;
+						grid[prev]++;
+						if(prev < front) front = prev;
 					}
 					if(col != ENDL) {
-						grid[i + 1]++;
-						back = (i + 1) > back ? (i + 1) : back;
+						grid[next]++;
+						if(next > back) back = next;
 					}
 					if(row != 0) {
-						grid[i - SIZE]++;
-						front = (i - SIZE) < front ? (i - SIZE) : front;
+						grid[top]++;
+						if(top < front) front = top;
 					}
 					if(row != ENDL) {
-						grid[i + SIZE]++;
-						back = (i + SIZE) > back ? (i + SIZE) : back;
+						grid[bottom]++;
+						if(bottom > back) back = bottom;
+					}
+				}	
+			}	
+		}
+	}
+
+	EMSCRIPTEN_KEEPALIVE
+	void toppleGridFast() {
+		for(uint32_t n = 0; n < 10; n++) {
+			for(uint32_t i = front; i <= back; i++) {
+				if(grid[i] > 3) {
+					grid[i] -= 4;
+					const uint32_t col = i % SIZE, row = i / SIZE;
+					const uint32_t prev = i - 1, next = i + 1;
+					const uint32_t top = i - SIZE, bottom = i + SIZE;
+					if(col != 0) {
+						grid[prev]++;
+						if(prev < front) front = prev;
+					}
+					if(col != ENDL) {
+						grid[next]++;
+						if(next > back) back = next;
+					}
+					if(row != 0) {
+						grid[top]++;
+						if(top < front) front = top;
+					}
+					if(row != ENDL) {
+						grid[bottom]++;
+						if(bottom > back) back = bottom;
 					}
 				}	
 			}	
