@@ -6,6 +6,7 @@
 		<script src="index.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/p5.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/addons/p5.dom.js"></script>
+		<script src="https://cdn.rawgit.com/gpujs/gpu.js/45103b7f154a12ec639990c6896b21a053eb6a6c/bin/gpu.js"></script>
 
 		<script src="sketch.js"></script>
 	</head>
@@ -14,8 +15,11 @@
 		<div id="canvas"></div>		
 		<button id="benchmark">Benchmark</button>
 		<button id="start">Start</button>
-		<input type="checkbox" id="live_mode"/>
-		<label for="live_mode">Live mode</label>
+		<select id="mode">
+			<option value="fast">Fast (WASM)</option>
+			<option value="normal">Normal (WASM)</option>
+			<option value="webgl">WebGL</option>
+		</select>
 		<button id="clear">Clear</button>
 	</body>
 </html>
